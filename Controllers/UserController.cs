@@ -79,7 +79,7 @@ namespace testProjectApis.Controllers
         {
             return await _users.Find(FilterDefinition<User>.Empty).ToListAsync();
         }
-        [Authorize(Roles ="player")]
+        [Authorize(Roles ="Player")]
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetbyId(string id)
         {
