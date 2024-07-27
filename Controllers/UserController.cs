@@ -28,29 +28,33 @@ namespace testProjectApis.Controllers
 
             //Uncomment for non static login
 
-            //var filter = Builders<User>.Filter.Eq(i => i.Email, requestLogin.Email);
-            //var userr = _users.Find(filter).FirstOrDefault();
-            //if (userr is null)
-            //{
-            //    return NotFound("No user found!");
-            //}
-            //if (userr.Password != requestLogin.Password)
-            //{
-            //    return Unauthorized("Invalid Credentials");
-            //}
-
-            User userr = new User() 
+            var filter = Builders<User>.Filter.Eq(i => i.Email, requestLogin.Email);
+            var userr = _users.Find(filter).FirstOrDefault();
+            if (userr is null)
             {
-                Email = requestLogin.Email,
-                FirstName = "Az",
-                LastName = "fb",
-                Password = requestLogin.Password,
-                Role = "player",
-                UserId = "2312312"
-            };
+                return NotFound("No user found!");
+            }
+            if (userr.Password != requestLogin.Password)
+            {
+                return Unauthorized("Invalid Credentials");
+            }
+
+            //User userr = new User() 
+            //{
+            //    Email = requestLogin.Email,
+            //    FirstName = "Az",
+            //    LastName = "fb",
+            //    Password = requestLogin.Password,
+            //    Role = "player",
+            //    UserId = "2312312"
+            //};
 
             var tokenn = _tokenService.CreateToken(userr);
-            return Ok(tokenn);
+            return Ok(new
+            {
+                token = tokenn,
+                user = userr
+            });
         }
 
         //[HttpPost("register")]
@@ -91,6 +95,7 @@ namespace testProjectApis.Controllers
         [HttpPost("Register")]
         public async Task<ActionResult> SaveUser(User user)
         {
+            user.UserId = null;
             await _users.InsertOneAsync(user);
             var token = _tokenService.CreateToken(user);
 

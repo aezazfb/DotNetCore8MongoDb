@@ -18,5 +18,14 @@ namespace testProjectApis.services
         }
 
         public IMongoDatabase? Database { get { return _database; } }
+        //public IMongoCollection<Category> GetCategoriesCollection()
+        //{
+        //    return _database.GetCollection<Category>("Categories");
+        //}
+
+        //public IMongoCollection<User> GetUsersCollection()
+        //{
+        //    return _database.GetCollection<User>("Users");
+        //}
     }
 }
