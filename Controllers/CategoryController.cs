@@ -12,11 +12,13 @@ namespace testProjectApis.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly IMongoCollection<Category>? _categories;
+        private readonly IMongoCollection<FileModel>? _files;
         private readonly TokenService _tokenService;
 
         public CategoryController(MongoDbService mongoDbService, TokenService tokenService)
         {
-            _categories = mongoDbService.Database?.GetCollection<Category>("categoryCol"); ;
+            _categories = mongoDbService.Database?.GetCollection<Category>("categoryCol");
+            _files = mongoDbService.Database?.GetCollection<FileModel>("files");
             _tokenService = tokenService;
         }
         [HttpGet]
@@ -42,6 +44,16 @@ namespace testProjectApis.Controllers
 
             //return Ok(new { Token = token });
             return CreatedAtAction(nameof(GetbyId), new { id = category.CategoryId }, category);
+        }
+        [HttpPost("upload")]
+        public async Task<ActionResult> AddFile(FileModel file)
+        {
+            file.Id = null;
+            await _files.InsertOneAsync(file);
+            //var token = _tokenService.CreateToken(category);
+
+            //return Ok(new { Token = token });
+            return Ok();
         }
         [HttpPut]
         public async Task<ActionResult> Updatecategory(Category category)
