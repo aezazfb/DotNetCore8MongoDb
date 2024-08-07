@@ -55,6 +55,53 @@ namespace testProjectApis.Controllers
             //return Ok(new { Token = token });
             return Ok();
         }
+        [HttpPost("uploadfile")]
+        public async Task<ActionResult> AddFilea(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+
+            using var stream = new MemoryStream();
+            await file.CopyToAsync(stream);
+            var fileModel = new FileModel
+            {
+                FileName = file.FileName,
+                FileType = file.ContentType,
+                FileContent = stream.ToArray()
+            };
+
+            //file.Id = null;
+            await _files.InsertOneAsync(fileModel);
+            //var token = _tokenService.CreateToken(category);
+
+            //return Ok(new { Token = token });
+            return Ok();
+        }
+
+        [HttpGet("download/{fileId}")]
+        public ActionResult GetFileById(string fileId) {
+
+            var filter = Builders<FileModel>.Filter.Eq(i => i.Id, fileId);
+
+            var file = _files.Find(filter).FirstOrDefault();
+
+            if (file == null) {
+                return NotFound();
+            }
+
+            var contentDisposition = new System.Net.Mime.ContentDisposition
+            {
+                FileName = file.FileName,
+                Inline = false
+            };
+
+            Response.Headers.Append("Content-Disposition", contentDisposition.ToString());
+
+            return File(file.FileContent, file.FileType);
+        }
+
         [HttpPut]
         public async Task<ActionResult> Updatecategory(Category category)
         {
