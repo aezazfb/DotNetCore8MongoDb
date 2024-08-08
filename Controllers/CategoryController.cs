@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using MongoDB.Driver;
 using testProjectApis.Models;
 using testProjectApis.services;
@@ -14,12 +15,14 @@ namespace testProjectApis.Controllers
         private readonly IMongoCollection<Category>? _categories;
         private readonly IMongoCollection<FileModel>? _files;
         private readonly TokenService _tokenService;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public CategoryController(MongoDbService mongoDbService, TokenService tokenService)
+        public CategoryController(MongoDbService mongoDbService, TokenService tokenService, IHubContext<NotificationHub> hubContext)
         {
             _categories = mongoDbService.Database?.GetCollection<Category>("categoryCol");
             _files = mongoDbService.Database?.GetCollection<FileModel>("files");
             _tokenService = tokenService;
+            _hubContext = hubContext;
         }
         [HttpGet]
         public async Task<IEnumerable<Category>> GetAll()
@@ -43,6 +46,8 @@ namespace testProjectApis.Controllers
             //var token = _tokenService.CreateToken(category);
 
             //return Ok(new { Token = token });
+
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification", "New record inserted, this is from SignalR!");
             return CreatedAtAction(nameof(GetbyId), new { id = category.CategoryId }, category);
         }
         [HttpPost("upload")]
@@ -53,6 +58,7 @@ namespace testProjectApis.Controllers
             //var token = _tokenService.CreateToken(category);
 
             //return Ok(new { Token = token });
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification", "New File inserted, this is from SignalR!");
             return Ok();
         }
         [HttpPost("uploadfile")]
@@ -74,6 +80,8 @@ namespace testProjectApis.Controllers
 
             //file.Id = null;
             await _files.InsertOneAsync(fileModel);
+
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification", "New File inserted, this is from SignalR!");
             //var token = _tokenService.CreateToken(category);
 
             //return Ok(new { Token = token });

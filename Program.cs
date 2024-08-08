@@ -13,6 +13,7 @@ var _configuration = builder.Configuration;
 services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 services.AddEndpointsApiExplorer();
+services.AddSignalR();
 services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "User´s API", Version = "v1" });
@@ -97,5 +98,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();
