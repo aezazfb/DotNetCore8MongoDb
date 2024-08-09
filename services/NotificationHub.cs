@@ -15,6 +15,7 @@ namespace testProjectApis.services
         // Optional: Override these methods to handle client connections/disconnections
         public override async Task OnConnectedAsync()
         {
+            //{"protocol":"json","version":1}          <- Send this as a message for handShake Connection!
             //await base.OnConnectedAsync();
             await Clients.All.SendAsync("ReceiveNotification", $"{Context.ConnectionId} you are connected!");
             // You can add custom logic when a client connects, like logging
